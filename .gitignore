@@ -1,0 +1,5 @@
+/totp.exe
+/.vs
+/target
+/codes.json
+/secret

@@ -1,0 +1,11 @@
+[package]
+name = "totp_generator_rust_windows"
+version = "0.1.0"
+authors = ["Dr. Christian Geuer-Pollmann <chgeuer@microsoft.com>"]
+edition = "2018"
+
+[dependencies]
+base32 = "0.4.0"
+oath = "0.10.2"
+clipboard-win = "2.2.0"
+json = "*"
