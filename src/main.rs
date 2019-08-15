@@ -1,14 +1,9 @@
-use std::env;
-use std::io::{stdin, Read};
 use std::process::exit;
-
-// #[macro_use]
-extern crate json;
-extern crate base32;
-extern crate oath;
 
 fn get_stdin() -> String {
     let mut input = String::new();
+    
+    use std::io::{stdin, Read};
     match stdin().read_to_string(&mut input) {
         Ok(_) => input,
         Err(_) => { println!("Could not read secret"); exit(1); },
@@ -21,6 +16,8 @@ fn get_stdin() -> String {
 
 fn json_from_stdin() -> json::JsonValue {
     let d = get_stdin();
+
+    extern crate json;
     json::parse(&d[..]).unwrap()
 }
 
@@ -32,19 +29,21 @@ fn navigate_json<'a>(data : &'a json::JsonValue, path : &[String]) -> Option<&'a
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let args: Vec<String> = std::env::args().collect();
     let keys_json = json_from_stdin();
     let key_str = match navigate_json(&keys_json, &args[1..]) {
         Some(v) => v,
         None => { println!("Could not find key in JSON"); exit(1); },
     };
 
+    extern crate base32;
     use base32::{decode, Alphabet::RFC4648};
     let key = match decode(RFC4648 { padding: false }, key_str) {
         Some(v) => v,
         None => { println!("Could not decode base32 string \"{}\"", key_str); exit(1); },
     };
 
+    extern crate oath;
     use oath::{totp_raw_now, HashType::SHA1};
     // let algo = "SHA1".to_string();
     // let hash = match &algo.to_lowercase()[..] {
@@ -56,19 +55,19 @@ fn main() {
     // let code = format!("{:<06}", totp_raw_now(&key, 6, 0, 30, &hash));
     let code = format!("{:<06}", totp_raw_now(&key, 6, 0, 30, &SHA1));
 
-    output_code(code);
+    output_code(code, args[1..].join("/"));
 }
 
-#[cfg(not(target_os = "linux"))]
-fn output_code(code : String) {
+#[cfg(target_os = "linux")]
+fn output_code(code : String, scope : String) {
+    println!("Use {} to access {}", code, scope);
+}
+
+#[cfg(target_os = "windows")]
+fn output_code(code : String, scope : String) {
     // On Windows, copy code to clipboard
     extern crate clipboard_win;
     use clipboard_win::set_clipboard_string;
     set_clipboard_string(&code).expect("Success");
-    println!("Copied code to clipboard");
-}
-
-#[cfg(target_os = "linux")]
-fn output_code(code : String) {
-    println!("Linux {}", code);
+    println!("Copied code for {} to clipboard", scope);
 }

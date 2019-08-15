@@ -10,15 +10,37 @@ Tools such as Google Authenticator on your phone scan the secret value to genera
 
 # !!!USE AT YOUR OWN RISK!!!
 
-## Demo
+## Linux Demo
+
+```bash
+$ cat secrets.json
+{
+  "github": "HJK",
+  "paypal": "XXXYYE5FOAGW5ML7LWWWL4WTZLNJAMXX",
+  "google": {
+    "alice@gmail.com": "WWWYYE5FOAGW5ML7LRWUL4WTZLNJAMXX",
+    "bob@gmail.com": "XXXYYE5FOAGW5ML7LRWUL4WTZLNJAMXX"
+  },
+  "microsoft": {
+    "liveid": {
+      "alice@gmail.com": "WWWYYE5FOAGW5ML7LRWUL4WTZLNJAWWW"
+    }
+  }
+}
+
+$ cat secrets.json | cargo run paypal
+Use 386656 to access paypal
+
+$ cat secrets.json | cargo run google alice@gmail.com
+Use 765345 to access google/alice@gmail.com
+
+$ cat secrets.json | cargo run microsoft liveid alice@gmail.com
+Use 564534 to access microsoft/liveid/alice@gmail.com
+```
+
+## Windows Demo
 
 ```msdos
-
-> cargo build --release
-   Compiling totp_generator_rust_windows v0.1.0 (C:\github\chgeuer\totp_generator_rust_windows)
-   Finished release [optimized] target(s) in 19.64s  
-
-
 > type secrets.json
 {
   "github": "HJK",
@@ -34,12 +56,12 @@ Tools such as Google Authenticator on your phone scan the secret value to genera
   }
 }
 
-> type secrets.json | target\release\totp_generator_rust_windows.exe paypal
+> type secrets.json | cargo run paypal
 Copied code for paypal to clipboard
 
->type secrets.json | target\release\totp_generator_rust_windows.exe google alice@gmail.com
+>type secrets.json | cargo run google alice@gmail.com
 Copied code for google/alice@gmail.com to clipboard
 
->type secrets.json | target\release\totp_generator_rust_windows.exe microsoft liveid alice@gmail.com
+>type secrets.json | cargo run microsoft liveid alice@gmail.com
 Copied code for microsoft/liveid/alice@gmail.com to clipboard
 ```
