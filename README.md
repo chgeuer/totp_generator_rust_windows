@@ -1,6 +1,8 @@
 # Generate TOTP codes, and put them into the clipboard
 
-The utility reads a JSON from STDIN, takes the "JSON Path" from the command line arguments, and then generates a TOTP code based on the secret. 
+The utility reads a JSON from STDIN, takes the "JSON Path" from the command line arguments, and then generates a TOTP code based on the secret.
+
+This utility was just an excercise for me personally, to learn a bit of Rust...
 
 ## Security warning
 
