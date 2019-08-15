@@ -4,15 +4,8 @@ use std::process::exit;
 
 // #[macro_use]
 extern crate json;
-
 extern crate base32;
-use base32::{decode, Alphabet::RFC4648};
-
 extern crate oath;
-use oath::{totp_raw_now, HashType::SHA1};
-
-extern crate clipboard_win;
-use clipboard_win::set_clipboard_string;
 
 fn get_stdin() -> String {
     let mut input = String::new();
@@ -46,11 +39,13 @@ fn main() {
         None => { println!("Could not find key in JSON"); exit(1); },
     };
 
+    use base32::{decode, Alphabet::RFC4648};
     let key = match decode(RFC4648 { padding: false }, key_str) {
         Some(v) => v,
         None => { println!("Could not decode base32 string \"{}\"", key_str); exit(1); },
     };
 
+    use oath::{totp_raw_now, HashType::SHA1};
     // let algo = "SHA1".to_string();
     // let hash = match &algo.to_lowercase()[..] {
     //     "sha1" => SHA1,
@@ -59,9 +54,21 @@ fn main() {
     //     _ => { println!("Unknown hash \"{}\"", &algo); exit(1); },
     // };
     // let code = format!("{:<06}", totp_raw_now(&key, 6, 0, 30, &hash));
-
     let code = format!("{:<06}", totp_raw_now(&key, 6, 0, 30, &SHA1));
 
+    output_code(code);
+}
+
+#[cfg(not(target_os = "linux"))]
+fn output_code(code : String) {
+    // On Windows, copy code to clipboard
+    extern crate clipboard_win;
+    use clipboard_win::set_clipboard_string;
     set_clipboard_string(&code).expect("Success");
-    println!("Copied code for {} to clipboard", &args[1..].join("/"));
+    println!("Copied code to clipboard");
+}
+
+#[cfg(target_os = "linux")]
+fn output_code(code : String) {
+    println!("Linux {}", code);
 }
